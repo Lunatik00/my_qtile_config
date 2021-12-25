@@ -29,21 +29,27 @@ from typing import List  # noqa: F401
 from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
 
 import subprocess
 from libqtile import hook
 @hook.subscribe.startup_once
 def autostart():
+    # subprocess.Popen(["nitrogen", "--restore"])
+    # subprocess.Popen(["easyeffects --gapplication-service"])
+    # subprocess.Popen(["/usr/bin/steam-runtime", "-silent"])
+    # subprocess.Popen(["Discord","--start-minimized"])
+    # subprocess.Popen(["flameshot"])
     subprocess.Popen(["dex", "--autostart", 
-                      "--search-paths", "$HOME/.config/autostart"])
-    subprocess.Popen(["picom"])
-    subprocess.Popen(["nitrogen", "--restore"])
-    subprocess.Popen(["kdeconnect-indicator"])
-    subprocess.Popen(["volctl"])
+                      "--search-paths", "$HOME/.config/qtile/autostart"])
     
 def run():
-    subprocess.Popen("rofi -show drun")
+    subprocess.Popen(["rofi", "-show drun"])
+def change_screen(n_screen):
+    lazy.window.toscreen(n_screen)
+    lazy.to_screen(n_screen)
+# def move_to_next_screen():
+#     screen = (lazy.screens.index(lazy.current_screen) + 1) % len(lazy.screens)
+#     lazy.window.toscreen(screen)
     
 mod = "mod4"
 alt = "mod1"
@@ -56,34 +62,15 @@ keys = [
         desc="Move window focus to other window"),
     Key([alt, "shift"], "Tab", lazy.layout.previous(),
         desc="Move window focus to other window"),
+    Key([mod, alt, "shift"], "Tab", lazy.screen.previous(),
+        desc="Move window focus to other window"),
+    # Key([mod, "control"], "a", change_screen(0), desc="move to screen 0"),
+    # Key([mod, "control"], "c", lazy.to_screen(0), desc="move to screen"),
+    # Key([mod, "control"], "v", lazy.to_screen(1), desc="move to screen"),
+    Key([mod, "control"], "Left", lazy.window.toscreen(0), lazy.to_screen(0), desc="move to screen 0"),
+    Key([mod, "control"], "Right", lazy.window.toscreen(1), lazy.to_screen(1), desc="move to screen 1"),
+    Key([mod], "f", lazy.window.toggle_fullscreen(), desc="Fullscreen mode"),
 
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(),
-        desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(),
-        desc="Move window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(),
-        desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(),
-        desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(),
-        desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(),
-        desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack"),
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
@@ -92,9 +79,8 @@ keys = [
     Key([mod], "Escape", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "r", lazy.restart(), desc="Restart Qtile"),
     
-    Key([mod, "control"], "Escape", lazy.spawn("clearine"), desc="Launch logout UI"),
+    # Key([mod, "control"], "End", lazy.spawn("clearine"), desc="Launch logout UI"),
     Key([mod], "r", lazy.spawn("rofi -show drun"), desc="Spawn rofi"),
-    # Key([mod], "r", run(), desc="Spawn rofi"),
 ]
 
 groups = [Group(i) for i in "123456789"]
@@ -198,7 +184,7 @@ mouse = [
          start=lazy.window.get_position()),
     Drag([mod], "Button3", lazy.window.set_size_floating(),
          start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front())
+    Click([mod], "Button2",lazy.window.toggle_maximize())
 ]
 
 dgroups_key_binder = None
